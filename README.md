@@ -20,9 +20,11 @@ Disk: 100GB
 ![img_1.png](img/img_1.png)
 
 내부 네트워크
+
 ![img.png](img/img2.png)
 
 외부 네트워크
+
 ![img.png](img/img3.png)
 
 IP : 192.168.56.100 ~ 102
