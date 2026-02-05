@@ -97,3 +97,76 @@ https://192.168.56.100:6443/api/v1/namespaces/kubernetes-dashboard/services/http
 ![img.png](img1_1.png)
 ![img_1.png](img1_2.png)
 
+## Prometheus & Grafana
+
+k8s Node 에 DaemonSet 으로 exporter 구현
+
+=> prometheus 에 metric push
+
+=> grafana 로 metric 정보 시각화
+
+![img.png](img1_3.png)
+
+k8s service apply
+
+```
+# prometheus
+kubectl create namespace monitoring
+kubectl create -f prometheus/prometheus-ConfigMap.yaml
+kubectl create -f prometheus/prometheus-ClusterRoleBinding.yaml
+kubectl create -f prometheus/prometheus-ClusterRole.yaml
+kubectl create -f prometheus/prometheus-Service.yaml 
+kubectl create -f prometheus/prometheus-Deployment.yaml
+kubectl create -f prometheus/prometheus-DaemonSet-nodeexporter.yaml
+
+# kube-system
+kubectl create -f kube-state/kube-state-ClusterRoleBinding.yaml
+kubectl create -f kube-state/kube-state-ClusterRole.yaml
+kubectl create -f kube-state/kube-state-ServiceAccount.yaml
+kubectl create -f kube-state/kube-state-Deployment.yaml
+kubectl create -f kube-state/kube-state-Service.yaml
+
+# grafana
+kubectl create -f grafana/grafana-Deployment.yaml
+kubectl create -f grafana/grafana-Service.yaml
+```
+
+```
+$ kubectl get po -n monitoring
+NAME                                     READY   STATUS    RESTARTS   AGE
+grafana-78476cc5c8-snshc                 1/1     Running   0          112s
+node-exporter-5zzdp                      1/1     Running   0          2m3s
+node-exporter-6b675                      1/1     Running   0          2m3s
+prometheus-deployment-568f7f568f-ngn8t   1/1     Running   0          2m3s
+```
+
+prometheus, grafana 접속
+
+```
+# prometheus
+http://192.168.56.101:30003
+
+# grafana
+http://192.168.56.101:30004
+```
+
+![img_1.png](img1_4.png)
+
+## Kubeshark
+
+* k8s 의 내부 네트워크에 대한 실시간 프로토콜 수준 가시성 제공
+* Container, Pod, Node 및 Cluster 에 들어오고 나가는 모든 트래픽과 페이로드를 캡처하고 모니터링하는 k8s 용 API 트래픽 분석기
+
+```
+# helm 설치
+$ curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# kubeshark install
+$ helm repo add kubeshark https://helm.kubeshark.com
+$ helm install kubeshark kubeshark/kubeshark
+
+# kubeshark enable
+$ kubectl port-forward -n default svc/kubeshark-front 8899:80 --address=0.0.0.0
+```
+
+![img.png](img1_5.png)
