@@ -341,3 +341,4 @@ $ sudo kubeadm join 192.168.56.100:6443 --token xblxtf.7bf0jks48dgjq8ho \
 
 
 
+

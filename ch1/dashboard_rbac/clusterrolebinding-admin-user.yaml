@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin # 모든 권한을 가지고 있음
+subjects:
+- kind: ServiceAccount
+  name: dashboard-admin-user # cluster-admin 의 모든 권한을 admin-user에 바인딩
+  namespace: kubernetes-dashboard
