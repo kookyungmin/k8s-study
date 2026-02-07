@@ -94,8 +94,8 @@ $ security import kubecfg.key \
 https://192.168.56.100:6443/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
 ```
 
-![img.png](img1_1.png)
-![img_1.png](img1_2.png)
+![img.png](img/img1_1.png)
+![img_1.png](img/img1_2.png)
 
 ## Prometheus & Grafana
 
@@ -105,7 +105,7 @@ k8s Node 에 DaemonSet 으로 exporter 구현
 
 => grafana 로 metric 정보 시각화
 
-![img.png](img1_3.png)
+![img.png](img/img1_3.png)
 
 k8s service apply
 
@@ -150,7 +150,7 @@ http://192.168.56.101:30003
 http://192.168.56.101:30004
 ```
 
-![img_1.png](img1_4.png)
+![img_1.png](img/img1_4.png)
 
 ## Kubeshark
 
@@ -169,4 +169,67 @@ $ helm install kubeshark kubeshark/kubeshark
 $ kubectl port-forward -n default svc/kubeshark-front 8899:80 --address=0.0.0.0
 ```
 
-![img.png](img1_5.png)
+![img.png](img/img1_5.png)
+
+
+## Portainer
+
+* 웹 GUI 기반의 컨테이너 관리도구
+
+portainer 설치
+
+```
+$ sudo mkdir /DATA1 (k8s-node1)
+$ kubectl apply -f portainer-pv.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/portainer/k8s/master/deploy/manifests/portainer/portainer.yaml
+
+$ kubectl -n portainer get pv,pvc
+NAME                            CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                 STORAGECLASS   REASON   AGE
+persistentvolume/portainer-pv   10Gi       RWO            Retain           Bound    portainer/portainer                           76s
+
+NAME                              STATUS   VOLUME         CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/portainer   Bound    portainer-pv   10Gi       RWO                           68s                       11s
+
+$ kubectl get -n portainer po,svc -o wide
+NAME                             READY   STATUS    RESTARTS   AGE   IP              NODE        NOMINATED NODE   READINESS GATES
+pod/portainer-7fff95b659-qwxxt   1/1     Running   0          89s   10.111.156.75   k8s-node1   <none>           <none>
+
+NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                                         AGE   SELECTOR
+service/portainer   NodePort   10.102.93.124   <none>        9000:30777/TCP,9443:30779/TCP,30776:30776/TCP   89s   app.kubernetes.io/instance=portainer,app.kubernetes.io/name=portainer
+```
+
+접속
+
+```
+http://192.168.56.101:30777
+```
+
+![img.png](img/img1_6.png)
+
+
+## k9s
+
+* k8s 클러스터를 터미널에서 사용하기 위한 오픈소스 CLI 도구
+
+* 터미널 기반의 UI 를 통해 kubectl 명령어를 입력하지 않아도 직관적으로 작업을 수행할 수 있고, UI 를 xhdgo k8s 의 리소스를 생성, 업데이트, 로깅하고 제거하는 방법 제공
+
+k9s 설치
+
+```
+$ wget https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Linux_arm64.tar.gz
+$ tar -zxvf k9s_Linux_arm64.tar.gz
+$ sudo mv k9s /usr/local/bin/k9s
+$ k9s info
+ ____  __.________
+|    |/ _/   __   \______
+|      < \____    /  ___/
+|    |  \   /    /\___ \
+|____|__ \ /____//____  >
+        \/            \/
+
+Configuration:   /home/koo/.config/k9s/config.yml
+Logs:            /tmp/k9s-koo.log
+Screen Dumps:    /tmp/k9s-screens-koo
+```
+
+![img.png](img/img1_7.png)
