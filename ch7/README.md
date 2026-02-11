@@ -119,6 +119,70 @@ spec:
 
 ## LoadBalancer
 
+![img_4.png](img_4.png)
+
+* 클라우드 서비스 공급자(CSP - AWS, GCP) 에서 제공하는 외부 Load Balancer 를 이용해 클러스터 외부에서 접근 가능하도록 노출하는 서비스로
+Node 앞에 위치해 각 Node들로 트래픽을 분산하는 역할
+* LoadBalancer 서비스는 NodePort 서비스 위에 적용, L4 LoadBalancer 가 생성되고, ClusterIP 서비스 및 NodePort 서비스가 암시적으로 생성됨
+* Public 으로 사용 가능한 IP 주소 및 DNS 주소를 제공하여 Private IP 주소 및 NodePort 포트를 통해 클러스터의 Node에 트래픽을 Load Balancing 하고 전달
+* LoadBalancer 서비스는 웹 애플리케이션이나 API와 같이 높은 트래픽 양을 처리해야 하는 애플리케이션에 유용
+* 클라우드 환경이 아닌 온프레미스(VM) 환경에서 LoadBalancer를 사용할 경우 제공한 public 주소를 제공할 수 있는 MetalLB(bare metal load balancer) 모듈을 설치해줘야 함
+
+
+### MetalLB
+
+* 온프레미스 클러스터에서는 AWS, GCP 와 같이 Load Balancer 를 제공하지 않으므로 부하 분산 기능 및 외부 연결용 IP 주소를 제공하는 리소스가 필요
+* MetalLB는 Bare Metal 환경(가상화 하지 않고 사용하는 고성능 물리 서버)에서 사용할 수 있는 Load Balancer 기능을 제공하는 CNCF의 오픈소스 프로젝트
+* MetalLB는 네트워크 로드 밸런서를 제공, "외부 IP 주소 풀"을 사용하여 온프레미스 및 VM 등의 가상 환경 클러스터에서 외부 서비스에 접근 가능
+* MetalLB 목적은 LoadBalancer IP 로 전달되는 트래픽을 클러스터 Node로 유도
+* 트래픽이 Node에 도달하면 MetalLB의 역할은 끝나고, 그 다음은 클러스터의 CNI에서 처리
+* Layer2 of BGP 모드가 있음
+
+
+## Ingress
+
+* Ingress object는 클러스터 외부에 있는 HTTP 및 HTTPS 경로를 서비스에 노출하고 트래픽 규칙을 정의
+* Ingress object는 일반적으로 로드 밸런서를 통해 수신 규칙 및 요청을 이행하는 Ingress Controller를 사용
+Nginx Controller, Envoy Controller, AWS Load Balancer Controller 등
+* Ingress object를 사용하면 사용하는 로드밸런서의 수를 줄일 수 있다.
+* Ingress object 및 Controller 를 사용하면 기존의 서비스 당 로드 밸런서 하나에서 Ingress 당 로드 밸런서 하나로 전환하고 여러 서비스로 라우팅할 수 있다.
+* 트래픽은 경로 기반 라우팅을 사용하여 적절한 서비스로 라우팅 가능
+* Ingress는 실제로 서비스 유형이 아닌 여러 서비스 앞에 있으며 "스마트 라우터" -> 즉, 클러스터의 진입점 역할
+
+
+k8s 내부 처리 과정
+
+![img_5.png](img_5.png)
+
+* Internet(external traffic) -> Ingress(routing rule) -> one more Service -> one more web APP pods -> container
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /testpath
+        pathType: Prefix
+        backend:
+          service:
+            name: test
+            port:
+              number: 80
+```
+
+nginx ingress controller 설치
+
+```
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/baremetal/deploy.yaml
+```
+
 
 
 
