@@ -11,7 +11,7 @@
 
 ### Service는 왜 필요할까
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 * Pod에 문제가 생기면 k8s 는 그 Pod를 삭제 후 재생성한다.
 * 이 때 기존 Pod IP가 같을 확률은 매우 낮다.
@@ -24,7 +24,7 @@
 
 ### Service는 어떻게 연결되나?
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 * Service는 가상 IP 와 port를 갖고 생성
 * kube-proxy는 이 Service의 가상 IP를 구현하고 port와 함께 관리하는 역할
@@ -32,7 +32,7 @@
 * Service를 사용하여 Pod를 노출하면 kube-proxy는 Service object와 그룹화된 Pod로 트래픽을 보내는 네트워크 규칙(Rules) 생성
 * kube-proxy는 Service 변경 사항 및 Endpoint 모니터링 후 설정된 mode(iptables, IPVS)를 사용하여 Service에 연결된 Pod로 트래픽을 routing 하기 위한 rule 생성, 업데이트
 
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
 
 
 ## Service type
@@ -69,7 +69,7 @@ spec:
 
 ### NodePort
 
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 * NodePort는 애플리케이션에 대한 외부 연결을 활성화하여 ClusterIP 서비스의 기능을 확장
 * NodePort 서비스를 생성하면 클러스터의 모든 Node에 특정한 포트(30000 ~ 32767)를 열어 외부에서 접근, 생성된 Service의 ClusterIP로 트래픽 routing
@@ -119,7 +119,7 @@ spec:
 
 ## LoadBalancer
 
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 * 클라우드 서비스 공급자(CSP - AWS, GCP) 에서 제공하는 외부 Load Balancer 를 이용해 클러스터 외부에서 접근 가능하도록 노출하는 서비스로
 Node 앞에 위치해 각 Node들로 트래픽을 분산하는 역할
@@ -152,7 +152,7 @@ Nginx Controller, Envoy Controller, AWS Load Balancer Controller 등
 
 k8s 내부 처리 과정
 
-![img_5.png](img_5.png)
+![img_5.png](img/img_5.png)
 
 * Internet(external traffic) -> Ingress(routing rule) -> one more Service -> one more web APP pods -> container
 
