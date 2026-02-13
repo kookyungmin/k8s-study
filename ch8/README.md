@@ -33,12 +33,12 @@ spec:
     emptyDir: {}
 ```
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 
 ## Volume 방식
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 
 ### emptyDir
@@ -51,7 +51,7 @@ spec:
 
 ex) multi container Pod에 emptyDir 활용
 
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
 
 ```
 $ kubectl apply -f temp-pod1.yaml
@@ -155,12 +155,12 @@ spec:
 * PV는 스토리지 그 자체이고, PVC 는 사용자, 개발자가 PV에게 Volume 할당을 요청하는 것
 * 용량(capacity)와 권한(accessModes) 설정을 통해 요청
 
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 
 ### PV, PVC LifeCycle
 
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 * Provisioning : PV를 만드는 단계, 이 단계에서는 PV를 미리 만들고 사용하는 정적 방법과 요청이 있을 때 PV를 만드는 동적 방법이 있다.
 * Binding : 생성한 PV를 PVC와 연결하는 단계, PV와 PVC는 1:1 관계에 있다.
@@ -248,8 +248,36 @@ spec:
 * 근데, 사실 PV가 hostPath 기반이면 문제가 되기에 될 수 있기에, 외부 스토리지 기반 PV 사용 권장
 
 
+## StorageClass
+
+* 스토리지 동적 프로비저닝은 PVC 요청에 대한 PV 생성을 자동화
+* 관리자는 PV 생성하기 위한 템플릿인 StorageClass 를 정의
+* 각 StorageClass는 PV를 생성하는 책임이 있는 프로비저너를 지정
+* 사용자가 특정 StorageClass를 참조하는 PVC를 생성하면 프로비저너는 PVC의 요구 사항과 일치하는 PV를 자동으로 생성하여 관리자의 수동 개입을 보류시킨다. (Pod 생성될 때, PV 생성됨)
+* 프로비저너는 일반적으로 CSP가 제공하는 볼륨 플러그인을 사용 ex : kubernetes.io/gce-pd
 
 
+### openebs driver를 이용한 StorageClass 생성
+
+```
+$ create ns openebs
+$ kubectl apply -f https://openebs.github.io/charts/openebs-operator-lite.yaml
+$ kubectl apply -f https://openebs.github.io/charts/openebs-lite-sc.yaml
+```
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openebs-pvc1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "openebs-hostpath"
+```
 
 
 
