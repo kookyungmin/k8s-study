@@ -319,10 +319,17 @@ spec:
 $ kubectl apply -f mysecret-sealed.yaml
 ```
 
-복호화 (sealed-secrets-controlle가 있기에 복호화 가능)
+복호화 (sealed-secrets-controller 가 있기에 복호화 가능)
 
 ```
 kubectl get secret secret-from-sealedsecret -o jsonpath="{.data.superpwd}" | base64 --decode
+```
+
+인증서 저장하기
+
+```
+$ kubeseal --controller-name=sealed-secrets-controller \
+--controller-namespace=kube-system --fetch-cert > cert.pem
 ```
 
 
