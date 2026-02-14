@@ -1,6 +1,6 @@
 # Pod 환경 구성을 위한 object
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 
 ## configMap & Secret 이해
@@ -8,7 +8,7 @@
 * k8s는 Pod 생성에 사용되는 yaml 파일과 설정 값을 분리할 수 있는 ConfigMap, Secret 제공
 * 주로 ConfigMap은 설정 값을 Secret은 노출 되서는 안되는 값을 넣어 줄 때 사용
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 * 개발, 테스트, 운영 환경에 사용되는 각기 다른 환경 값의 분리 필요
 * 애플리케이션 Image는 동일하게 사용하고 필요한 환경 구성 값을 ConfigMap으로 만들거나
@@ -69,7 +69,7 @@ Pod 내부의 Ambassador 컨테이너에 접근하도록 하고, 살제 외부�
 * 외부 서비스에 균일한 인터페이스를 제공하여 외부 서비스를 더 쉽게 관리하고 확장하는데 사용
 * Ambassador 컨테이너는 기본 애플리케이션 컨테이너를 대신하여 네트워킹, 인증, 로깅, 모니터링과 같은 특정 교차문제를 처리하는 일에 적합
 
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
 
 외부의 요청을 ambassador 가 받아 애플리케이션으로 proxy 하는 예제
 
@@ -224,7 +224,7 @@ $ curl -k https://localhost:8443 -H "Host: test.k8s.io"
 
 ### tls 활용, ingress service에 tls secret 연결
 
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 ```
 apiVersion: networking.k8s.io/v1
@@ -333,4 +333,48 @@ $ kubeseal --controller-name=sealed-secrets-controller \
 ```
 
 
+## etcd 암호화로 secret 암호화하기
 
+* etcd에 저장되는 모든 API 리소스들은 암호화 기능을 지원 (기본은 평문)
+* secret에 저장된 인코딩 값은 etcd를 들여다 보면 평문으로 확인
+
+![img_4.png](img/img_4.png)
+
+
+### etcd 암호화
+
+* EncryptionConfiguration 리소스 생성
+* resources: 암호화를 원하는 리소스(object) 타입 지정
+* providers: 암호화 방식을 정의하여 해당 방식으로 암호화 됨. identity: {} 는 암호화 지원안함
+
+
+* kube-apiserver에 암호화 기능 활성화
+* --encryption-provider-config 추가 (EncryptionConfiguration 리소스 경로와 파일명)
+
+
+```
+# /etc/kubernetes/pki/encryption.yaml
+
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+- resources:
+  - secrets
+  providers:
+  - secretbox:
+      keys:
+      - name: key1
+        secret: uVYWZVszQzu+93hztFq+KlFK4QYJJR8/zry+GK8qJFs=
+  - identity: {}
+```
+
+```
+$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+...
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --encryption-provider-config=/etc/kubernetes/pki/encryption.yaml
+...
+```
