@@ -378,3 +378,8 @@ spec:
     - --encryption-provider-config=/etc/kubernetes/pki/encryption.yaml
 ...
 ```
+
+```
+# 암호화 전 secret은 수동으로 암호화
+$ kubectl get secrets test-secret -o json | kubectl replace -f -
+```
