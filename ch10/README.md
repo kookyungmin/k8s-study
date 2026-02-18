@@ -56,7 +56,13 @@ spec:
         image: example-image
         ports:
         - containerPort: 80
-        resources: {}
+        resources: 
+          limits: # 최대
+            cpu: 100m
+            memory: 128Mi
+          requests: # 초기
+            cpu: 100m
+            memory: 128Mi
 ```
 
 이미지 업데이트
@@ -77,3 +83,88 @@ $ kubectl rollout history deploy example-deployment
 $ kubectl rollout undo deploy example-deployment --to-revision=2
 ```
 
+스케일 변경
+
+```
+$ kubectl scale deploy example-deployment --replicas=5
+```
+
+
+### Deployment 배포 전략
+
+* 일반적으로 배포 전략에 따라 애플리케이션이 이전 버전에서 최신 버전으로 업데이트 되는 방식이 결정
+* 일부 전략에서는 다운타임이 포함되며, 일부는 테스트 개념을 도입하고 사용자 분석을 가능하게 함 (Recreate, RollingUpdate(default))
+* 트래픽 흐름을 다양한 방식으로 제어할 수 있는 고급 배포 전략 사용 (Blue-Green, Canary, A/B Testing)
+* RollingUpdate 시 maxSurge는 업데이트 중 기존 replica 수보다 얼마나 더 많이 pod를 잠시 늘릴 수 있는가의 값이고,
+maxUnavailable은 업데이트 중 사용 불가능해도 좋은 Pod 수이다.
+
+![img_1.png](img_1.png)
+
+
+
+## StatefulSet
+
+* StatefulSet은 애플리케이션의 상태저장을 관리하는 workload 리소스
+* Stateless 애플리케이션은 Deployment로 배포하고, Stateful인 DB 같은 경우는 StatefulSet으로 배포
+* StatefulSet 로 실행시킨 Pod는 Deployment와 다르게 같은 순서 값과 안정적인 네트워크 ID를 Pod에 할당
+* Pod는 오름 차순으로 생성되고, 다음 Pod는 이전 Pod가 준비되고 실행 상태가 된 후에만 생성된다. 삭제는 반대로 큰 수의 Pod부터 삭제됨
+* spec.podManagementPolicy: Parallel -> Pod를 순서 없이 병렬로 실행하거나 종료
+
+
+* StatefulSet의 각 Pod들은 동일 spec으로 생성되지만 서로 교체는 불가능 즉, re-scheduling 이 되도 지속적으로 동일 식별자 유지
+* StatefulSet 애플리케이션은 서버, 클라이언트, 애플리케이션에서 사용할 수 있돌고 영구 볼륨에 데이터 저장 -> StorageClass를 사용한 PVC 사용
+* StatefulSet 복제본 증가시 자동으로 PV/PVC 가 생성
+* StatefulSet 복제본 축소 시 사용했던 PV/PVC는 삭제되지 않고 유지
+* StatefulSet은 Headless service를 사용해야 한다. (Pod를 그룹화하기만 함)
+* StatefulSet에서 각 Pod를 개별적으로 식별하고 직접 통신하기 위해 Headless Service가 필요하다.
+
+![img_2.png](img_2.png)
+
+```
+# Headless Service
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: stfs-svc
+  labels:
+    app: stfs-app
+spec:
+  clusterIP: None
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    app: stfs-app
+```
+
+```
+# StatefulSet
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: stfs-app
+spec:
+  serviceName: stfs-svc
+  selector:
+    matchLabels:
+      app: stfs-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: stfs-app
+    spec:
+      ...
+  volumeClaimTemplates:
+   - metadata:
+       name: data
+     spec:
+      resources:
+         requests:
+           storage: 1Gi
+         accessModes:
+         - ReadWriteOnce
+         storageClassName: openebs-hostpath
+```
