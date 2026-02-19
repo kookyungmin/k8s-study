@@ -168,3 +168,22 @@ spec:
          - ReadWriteOnce
          storageClassName: openebs-hostpath
 ```
+
+## DaemonSet
+
+* DaemonSet 은 Deployment와 유사하지만 Replicas 옵션은 없다.
+* 이는 DaemonSet이 노드 단위 배포이고, 노드의 백그라운드에서 항상 Pod를 데몬으로 실행할 수 있게 해주는 workload resources라는 것이다.
+* DaemonSet은 모든 노드에서 백그라운드로 항상 실행되어야 하는 업무를 수행하는데에 적합
+* 모니터링 시스템, 로그 수집 에이전트, 노드 데이터 백업과 같은 장기간 지속되는 작업
+* Taint와 Toleration 옵션 혹은 nodeSelector을 사용하여 특정 노드에 배포 선택 가능
+
+
+DaemonSet 업데이트 전략의 기본은 RollingUpdate (또는 OnDelete)
+
+* onDelete 이전 데몬이 종료된 경우에만 교체
+* RollingUpdate 롤링을 사용하여 이전 데몬을 새 데몬으로 교체
+
+
+## Job & CronJob 활용
+
+
