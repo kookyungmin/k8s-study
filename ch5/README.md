@@ -2,7 +2,7 @@
 
 ### Runtime container
 
-![img.png](ch5/img.png)
+![img.png](img/img.png)
 
 * Pod가 포함하는 일반적인 애플리케이션 컨테이너를 runtime container 라고 한다.
 * Pod는 애플리케이션 코드가 포함된 단일 컨테이너에 대한 wrapper(포장지) 역할
