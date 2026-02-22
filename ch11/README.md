@@ -1,6 +1,6 @@
 # Namespace
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 * namespace(ns) 는 k8s cluster 내에서 리소스(Pod, Service 등)을 구분(격리)하기 위한 가상의 논리적 공간(그룹, 파티셔닝) 을 제공
 * 서비스(애플리케이션, 팀, 환경 등 목적에 따른 구분) 단위의 namespace 구분은 전체 프로젝트 운영, 관리 등의 측면에서 유리
@@ -21,7 +21,7 @@ nameserver 10.96.0.10
 ```
 
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 
 기본 namespace 변경 방법
@@ -50,7 +50,7 @@ $ kubens -c # current ns
 * Pod 입장에서 자원이 부족해 문제가 발생할 수 있지만, 다른 Namespace에 있는 Pod에는 영향을 주지 않음
 
 
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 ```
 apiVersion: v1
@@ -75,7 +75,7 @@ spec:
 * 이는 ResourceQuota 가 있더라도 언제나 Namespace 범위에서의 cpu, memory 제한이기 때문에 하나의 pod가 모든 자원 사용도 가능
 * LimitRange 생성 시 Namespace 에서 하나의 pod, container 가 너무 많은 자원을 소모하지 못하게 제한
 
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 ```
 apiVersion: v1
